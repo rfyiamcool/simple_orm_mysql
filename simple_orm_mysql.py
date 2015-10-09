@@ -94,14 +94,3 @@ class CharField(Field):
         self.default = default
         self.max_length = max_length
 
-
-class User(Model):
-    name = CharField()
-    addr = CharField()
-
-user = User()
-user.addr = "beijing of china"
-user.name = 'fengyun'
-user.save()
-user.addr = "shanghai of china"
-user.save()
