@@ -4,3 +4,23 @@
 
 尽量让simple_orm_mysql的用法像django的orm ,这样能更加容易的上手
 
+example:
+
+```
+
+#coding:utf-8
+from simple_orm_mysql import *
+
+class User(Model):
+    name = CharField()
+    addr = CharField()
+
+if __name__ == "__main__":
+    user = User()
+    user.addr = "beijing of china"
+    user.name = 'fengyun'
+    user.save()
+    user.addr = "shanghai of china"
+    user.save()
+
+```
