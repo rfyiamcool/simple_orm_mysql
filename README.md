@@ -22,5 +22,6 @@ if __name__ == "__main__":
     user.save()
     user.addr = "shanghai of china"
     user.save()
+    user.get(name='xiaorui.cc',addr="beijing")
 
 ```
