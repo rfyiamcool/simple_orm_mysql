@@ -1,6 +1,18 @@
 #coding:utf-8
+class Utils(object):
+   def join_where(self,kwargs): 
+        str_list = []
+        index = 0
+        for i in kwargs.iteritems():
+            if not index == len(kwargs):
+                str = "%s=%s"%(i[0],i[1])
+                str_list.append(str)
+                index +=1
+        where_sql = ' and '.join(str_list)        
+        return where_sql
+        
 
-class Model(object):
+class Model(Utils):
     def __init__(self, rid=0, **kwargs):
         self.table_name = self.__class__.__name__.lower()
         for name in self.field_names:
@@ -44,7 +56,6 @@ class Model(object):
         return values
 
     def get_cursor(self):
-        pass
         return None
 
     def insert(self):
@@ -75,10 +86,10 @@ class Model(object):
         sql = "delete from `%s` where id = %d" % (self.table_name, self.id)
         print sql
 
-    @classmethod
-    def get(cls, **kwargs):
-        query = Query(cls)
-        return query.filter(**kwargs).first()
+    def get(self, **kwargs):
+        where_sql = self.join_where(kwargs)
+        sql = "select * from %s where %s"%(self.table_name,where_sql)
+        print sql
 
 class Field(object):
     field_type = ""
@@ -93,4 +104,5 @@ class CharField(Field):
         self.field_type = "varchar(%d)" % max_length
         self.default = default
         self.max_length = max_length
+
 
