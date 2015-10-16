@@ -4,6 +4,21 @@
 
 尽量让simple_orm_mysql的用法像django的orm ,这样能更加容易的上手
 
+### To List:
+1. query功能完善
+    * User.where(id=123,name='fengyun').update(addr='bj')
+    * User.where().count()
+    * User.where().select()
+    * User.where().select(order='id',order_method='DESC',limit=10)
+
+2. 增加原生sql语句的支持
+
+3. 路由(以后)
+
+4. 缓存(以后)
+
+
+
 example:
 
 ```
