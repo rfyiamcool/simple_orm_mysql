@@ -9,7 +9,7 @@
     * User.where(id=123,name='fengyun').update(addr='bj')
     * User.where().count()
     * User.where().select()
-    * User.where().select(order='id',order_method='DESC',limit=10)
+    * User.where(order_field='id',order_turn='DESC',limit=10).select()
 
 2. 增加原生sql语句的支持
 

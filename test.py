@@ -2,6 +2,8 @@
 from simple_orm_mysql import *
 
 class User(Model):
+    table_name = 'user'
+    debug = False
     name = CharField()
     addr = CharField()
 

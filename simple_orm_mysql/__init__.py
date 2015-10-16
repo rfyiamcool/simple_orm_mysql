@@ -56,14 +56,15 @@ class Syntax(object):
 
 class Model(Utils):
     def __init__(self, rid=0, **kwargs):
-        if not getattr(self.__class__,table_name):
+        if not getattr(self.__class__,'table_name'):
             self.table_name = self.__class__.__name__.lower()
         for name in self.field_names:
             field = getattr(self.__class__, name.replace("`", ""))
             setattr(self, name.replace("`", ""), field.default)
         for key, value in kwargs.items():
             setattr(self, key.replace("`", ""), value)
-#        self.debug()
+        if getattr(self.__class__,'debug'):
+            self.debug()
 
     def debug(self):
         for name in dir(self.__class__):
@@ -111,8 +112,6 @@ class Model(Utils):
         print sql
 
     def update(self):
-        cu = get_cursor()
-
         name_value = []
         for name, value in zip(self.field_names, self.field_values):
             name_value.append("%s=%s" % (name, value))
@@ -125,7 +124,6 @@ class Model(Utils):
         self.insert()
 
     def delete(self):
-        cu = get_cursor()
         sql = "delete from `%s` where id = %d" % (self.table_name, self.id)
         print sql
 
