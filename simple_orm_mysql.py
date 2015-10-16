@@ -14,8 +14,45 @@ class Utils(object):
                 index +=1
         where_sql = ' and '.join(str_list)        
         return where_sql
-    
-        
+
+class Syntax(object):
+    def __init__(self, model, kwargs):
+        self.model = model
+        # How to deal with a non-dict parameter?
+        self.params = kwargs.values()
+        equations = [key + ' = %s' for key in kwargs.keys()]
+        self.where_expr = 'where ' + ' and '.join(equations) if len(equations) > 0 else ''
+
+    def update(self, **kwargs):
+        _keys = []
+        _params = []
+        for key, val in kwargs.iteritems():
+            if val is None or key not in self.model.fields:
+                continue
+            _keys.append(key)
+            _params.append(val)
+        _params.extend(self.params)
+        sql = 'update %s set %s %s;' % (
+            self.model.table_name, ', '.join([key + ' = %s' for key in _keys]), self.where_expr)
+        return sql, _params
+
+    def limit(self, rows, offset=None):
+        self.where_expr += ' limit %s%s' % (
+            '%s, ' % offset if offset is not None else '', rows)
+        return self
+
+    def select(self):
+        sql = 'select %s from %s %s;' % (', '.join(self.model.fields.keys()), self.model.table_name, self.where_expr)
+        for row in Database.execute(sql, self.params).fetchall():
+            inst = self.model()
+            for idx, f in enumerate(row):
+                setattr(inst, self.model.fields.keys()[idx], f)
+            yield inst
+
+    def count(self):
+        sql = 'select count(*) from %s %s;' % (self.model.table_name, self.where_expr)
+        (row_cnt, ) = Database.execute(sql, self.params).fetchone()
+        return row_cnt
 
 class Model(Utils):
     def __init__(self, rid=0, **kwargs):
@@ -95,6 +132,9 @@ class Model(Utils):
         where_sql = self.join_where(kwargs)
         sql = "select * from %s where %s"%(self.table_name,where_sql)
         print sql
+
+    def where(self, **kwargs):
+        return Syntax(self, kwargs)
 
 class Field(object):
     field_type = ""
