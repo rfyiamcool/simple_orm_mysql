@@ -56,7 +56,8 @@ class Syntax(object):
 
 class Model(Utils):
     def __init__(self, rid=0, **kwargs):
-        self.table_name = self.__class__.__name__.lower()
+        if not getattr(self.__class__,table_name):
+            self.table_name = self.__class__.__name__.lower()
         for name in self.field_names:
             field = getattr(self.__class__, name.replace("`", ""))
             setattr(self, name.replace("`", ""), field.default)
