@@ -1,4 +1,8 @@
 #coding:utf-8
+class FieldError():
+   def __init__(self, arg):
+      self.args = arg
+
 class Utils(object):
    def join_where(self,kwargs): 
         str_list = []
@@ -10,6 +14,7 @@ class Utils(object):
                 index +=1
         where_sql = ' and '.join(str_list)        
         return where_sql
+    
         
 
 class Model(Utils):
@@ -64,7 +69,7 @@ class Model(Utils):
         field_names_sql = ", ".join(self.field_names)
         field_values_sql = ", ".join(self.field_values)
 
-        sql = "insert into `%s`(%s) values(%s)" % (self.table_name, field_names_sql, field_values_sql)
+        sql = "insert into '%s'(%s) values(%s)" % (self.table_name, field_names_sql, field_values_sql)
         print sql
 
     def update(self):
@@ -105,4 +110,6 @@ class CharField(Field):
         self.default = default
         self.max_length = max_length
 
-
+def ValidField(max_length):
+    if max_length > 255:
+        raise FieldError('max_lenth lt 255')
