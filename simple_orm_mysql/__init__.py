@@ -1,7 +1,6 @@
 #coding:utf-8
-class FieldError():
-   def __init__(self, arg):
-      self.args = arg
+from simple_orm_mysql.store import SqlStore
+from simple_orm_mysql.store import *
 
 class Utils(object):
    def join_where(self,kwargs): 
@@ -18,7 +17,6 @@ class Utils(object):
 class Syntax(object):
     def __init__(self, model, kwargs):
         self.model = model
-        # How to deal with a non-dict parameter?
         self.params = kwargs.values()
         equations = [key + ' = %s' for key in kwargs.keys()]
         self.where_expr = 'where ' + ' and '.join(equations) if len(equations) > 0 else ''
@@ -58,6 +56,10 @@ class Model(Utils):
     def __init__(self, rid=0, **kwargs):
         if not getattr(self.__class__,'table_name'):
             self.table_name = self.__class__.__name__.lower()
+        if getattr(self.__class__,'db_config'):
+            self.db_config = getattr(self.__class__,'db_config') 
+        else:
+            raise NotFindArgv('not find db_config argv')
         for name in self.field_names:
             field = getattr(self.__class__, name.replace("`", ""))
             setattr(self, name.replace("`", ""), field.default)
@@ -123,8 +125,9 @@ class Model(Utils):
     def save(self):
         self.insert()
 
-    def delete(self):
-        sql = "delete from `%s` where id = %d" % (self.table_name, self.id)
+    def delete(self, **kwargs):
+        where_sql = self.join_where(kwargs)
+        sql = "delete from %s where %s"%(self.table_name,where_sql)
         print sql
 
     def get(self, **kwargs):
@@ -156,3 +159,4 @@ class IntField(Field):
 def ValidField(max_length):
     if max_length > 255:
         raise FieldError('max_lenth lt 255')
+
