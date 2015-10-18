@@ -149,6 +149,10 @@ class CharField(Field):
         self.default = default
         self.max_length = max_length
 
+class IntField(Field):
+    def __init__(self, default=None):
+        self.default = default
+
 def ValidField(max_length):
     if max_length > 255:
         raise FieldError('max_lenth lt 255')
