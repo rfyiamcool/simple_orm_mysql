@@ -67,7 +67,12 @@ class Model(Utils):
             setattr(self, key.replace("`", ""), value)
         if getattr(self.__class__,'debug'):
             self.debug()
+        self.build_conn()
 
+    def build_conn(self):
+        self.sqlstore = SqlStore(**self.db_config)
+        self.cursor = self.sqlstore.get_cursor()
+        
     def debug(self):
         for name in dir(self.__class__):
             print name,'-------',getattr(self.__class__,name)
@@ -101,17 +106,12 @@ class Model(Utils):
             values.append("'%s'" % value)
         return values
 
-    def get_cursor(self):
-        return None
-
     def insert(self):
-        cu = self.get_cursor()
-
         field_names_sql = ", ".join(self.field_names)
         field_values_sql = ", ".join(self.field_values)
 
         sql = "insert into '%s'(%s) values(%s)" % (self.table_name, field_names_sql, field_values_sql)
-        print sql
+        return self.cursor.execute(sql)
 
     def update(self):
         name_value = []
@@ -120,7 +120,7 @@ class Model(Utils):
         name_value_sql = ", ".join(name_value)
 
         sql = "update `%s` set %s where id = %d" % (self.table_name, name_value_sql, self.id)
-        print sql
+        return self.cursor.execute(sql)
 
     def save(self):
         self.insert()
@@ -128,12 +128,12 @@ class Model(Utils):
     def delete(self, **kwargs):
         where_sql = self.join_where(kwargs)
         sql = "delete from %s where %s"%(self.table_name,where_sql)
-        print sql
+        return self.cursor.execute(sql)
 
     def get(self, **kwargs):
         where_sql = self.join_where(kwargs)
         sql = "select * from %s where %s"%(self.table_name,where_sql)
-        print sql
+        return self.cursor.execute(sql)
 
     def where(self, **kwargs):
         return Syntax(self, kwargs)
