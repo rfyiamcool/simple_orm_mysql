@@ -52,7 +52,27 @@ class Syntax(object):
         (row_cnt, ) = Database.execute(sql, self.params).fetchone()
         return row_cnt
 
+class ModelMetaclass(type):
+
+    def __new__(cls, name, bases, attrs):
+        if name=='Model':
+            return type.__new__(cls, name, bases, attrs)
+        print cls,name,bases,attrs
+        print attrs['Meta'].database
+        print('Found model: %s' % name)
+        mappings = dict()
+        for k, v in attrs.iteritems():
+            if isinstance(v, Field):
+                print('Found mapping: %s ==> %s' % (k, v))
+                mappings[k] = v
+        for k in mappings.iterkeys():
+            attrs.pop(k)
+        attrs['__mappings__'] = mappings # 保存属性和列的映射关系
+        attrs['__table__'] = name # 假设表名和类名一致
+        return type.__new__(cls, name, bases, attrs)
+
 class Model(Utils):
+    __metaclass__ = ModelMetaclass
     def __init__(self, rid=0, **kwargs):
         if not getattr(self.__class__,'table_name'):
             self.table_name = self.__class__.__name__.lower()
